@@ -7,6 +7,7 @@
 #
 
 import json as json_lib
+import re
 from io import BytesIO
 
 import pytest
@@ -90,6 +91,22 @@ class TestWebServer(WebServerTestBase, WebServerMockBase):
         recursive_url = f'{recursive_url}/{base}'
         response = await agent.request(b'GET', recursive_url.encode())
         assert response.code == 404 if base.strip('/') else 200
+
+    async def test_index_ui_config_sidebar_show_search(self):
+        """Ensure the sidebar search option reaches the page and is off by default"""
+        agent = Agent(reactor)
+        url = f'http://127.0.0.1:{self.deluge_web.port}'
+
+        async def get_ui_config():
+            response = await agent.request(b'GET', url.encode())
+            body = await twisted.web.client.readBody(response)
+            match = re.search(r'config: (\{.*?\})', body.decode())
+            return json_lib.loads(match.group(1))
+
+        assert (await get_ui_config())['sidebar_show_search'] is False
+
+        self.deluge_web.config['sidebar_show_search'] = True
+        assert (await get_ui_config())['sidebar_show_search'] is True
 
     async def test_base_with_deluge_header(self):
         """Ensure base path is set and HTML contains path"""

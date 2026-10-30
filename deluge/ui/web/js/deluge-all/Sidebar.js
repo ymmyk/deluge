@@ -43,9 +43,29 @@ Deluge.Sidebar = Ext.extend(Ext.Panel, {
     },
 
     // private
+    searchDelay: 250,
+
+    // private
     initComponent: function () {
+        this.searchField = new Ext.form.TextField({
+            emptyText: _('Filter by name...'),
+            enableKeyEvents: true,
+            listeners: {
+                keyup: this.onSearchChange,
+                render: function (field) {
+                    // keyup misses paste and autofill; input catches every edit.
+                    field.getEl().on('input', this.onSearchChange, this);
+                },
+                scope: this,
+            },
+        });
+        this.searchTask = new Ext.util.DelayedTask(deluge.ui.update, deluge.ui);
+        this.tbar = [this.searchField];
+
         Deluge.Sidebar.superclass.initComponent.call(this);
         deluge.events.on('disconnect', this.onDisconnect, this);
+        this.on('resize', this.onResize, this);
+        this.on('afterrender', this.updateSearchVisibility, this);
     },
 
     createFilter: function (filter, states) {
@@ -99,6 +119,12 @@ Deluge.Sidebar = Ext.extend(Ext.Panel, {
             }
         }
 
+        // The name search sits outside the accordion so it always applies.
+        var search = this.searchField.getValue();
+        if (search && this.searchVisible) {
+            states['name'] = search;
+        }
+
         return states;
     },
 
@@ -119,7 +145,57 @@ Deluge.Sidebar = Ext.extend(Ext.Panel, {
         deluge.ui.update();
     },
 
+    // private
+    onResize: function (panel, adjWidth) {
+        if (Ext.isNumber(adjWidth)) {
+            this.searchField.setWidth(adjWidth - 6);
+        }
+    },
+
+    // private
+    updateSearchVisibility: function () {
+        var visible = !!deluge.config.sidebar_show_search;
+        if (visible === this.searchVisible) return;
+        this.searchVisible = visible;
+
+        // Hiding the search box must not leave a filter applied.
+        if (!visible) {
+            this.searchTask.cancel();
+            this.searchField.setValue('');
+        }
+        this.getTopToolbar().setVisible(visible);
+        this.syncSize();
+        this.doLayout();
+    },
+
+    // private
+    onSearchChange: function () {
+        this.deselectNonMatching();
+        this.searchTask.delay(this.searchDelay);
+    },
+
+    // The torrent grid only drops non-matching torrents after the next
+    // server update. Until then they are still shown and may be selected,
+    // so deselect them now to keep actions such as remove from reaching
+    // torrents that are being filtered out.
+    deselectNonMatching: function () {
+        var search = this.searchField.getValue().toLowerCase();
+        if (!search) return;
+
+        var store = deluge.torrents.getStore();
+        var selModel = deluge.torrents.getSelectionModel();
+        Ext.each(selModel.getSelections(), function (record) {
+            var name = (record.get('name') || '').toLowerCase();
+            if (name.indexOf(search) == -1) {
+                selModel.deselectRow(store.indexOf(record));
+            }
+        });
+    },
+
     update: function (filters) {
+        // Picks up the preference after it is changed in Preferences.
+        this.updateSearchVisibility();
+
         for (var filter in filters) {
             var states = filters[filter];
             if (Ext.getKeys(this.panels).indexOf(filter) > -1) {

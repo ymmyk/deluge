@@ -60,6 +60,13 @@ Deluge.preferences.Interface = Ext.extend(Ext.form.FormPanel, {
                 boxLabel: _('Allow the use of multiple filters at once'),
             })
         );
+        om.bind(
+            'sidebar_show_search',
+            fieldset.add({
+                name: 'sidebar_show_search',
+                boxLabel: _('Show search box in filters sidebar'),
+            })
+        );
 
         var languagePanel = this.add({
             xtype: 'fieldset',
