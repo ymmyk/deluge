@@ -44,6 +44,7 @@ CONFIG_DEFAULTS = {
     # UI Settings
     'sidebar_show_zero': False,
     'sidebar_multiple_filters': True,
+    'sidebar_show_search': False,
     'show_session_speed': False,
     'show_sidebar': True,
     'theme': 'gray',
@@ -62,6 +63,7 @@ UI_CONFIG_KEYS = (
     'theme',
     'sidebar_show_zero',
     'sidebar_multiple_filters',
+    'sidebar_show_search',
     'show_session_speed',
     'base',
     'first_login',

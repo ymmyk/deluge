@@ -35,6 +35,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Fix passwords being ignored in certain dialogs such as Tray Password and Connection Manager.
 
+### Web UI
+
+#### Added
+
+- Add an optional search box to the Filters sidebar to filter torrents by name (enable in Preferences > Interface).
+
 ## 2.2.0 (2025-04-28)
 
 ### Breaking changes
