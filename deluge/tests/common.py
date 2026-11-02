@@ -55,14 +55,15 @@ def add_watchdog(deferred, timeout=0.05, message=None):
     def callback(value):
         if not watchdog.called and not watchdog.cancelled:
             watchdog.cancel()
-        if not deferred.called:
-            if message:
-                print(message)
-            deferred.cancel()
         return value
 
+    def on_timeout():
+        if message:
+            print(message)
+        deferred.cancel()
+
     deferred.addBoth(callback)
-    watchdog = reactor.callLater(timeout, defer.Deferred.addTimeout, deferred)
+    watchdog = reactor.callLater(timeout, on_timeout)
     return watchdog
 
 

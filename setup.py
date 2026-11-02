@@ -525,6 +525,7 @@ install_requires = [
     'pyasn1',
     'rencode',
     'pyopenssl',
+    'cryptography>=3.1',
     'pyxdg',
     'mako',
     'setuptools',

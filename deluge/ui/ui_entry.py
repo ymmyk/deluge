@@ -34,7 +34,7 @@ def get_ui_entrypoints():
     ui_entrypoints = {}
     for entrypoint in pkg_resources.iter_entry_points('deluge.ui'):
         try:
-            ui_entrypoints[entrypoint.name] = entrypoint.load()
+            ui_entrypoints[entrypoint.name] = entrypoint.resolve()
         except ImportError:
             # Unable to load entrypoint so skip adding it.
             pass
