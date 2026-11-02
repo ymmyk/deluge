@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Dropped support for Python 3.8 or older. (Requires Python >= 3.10)
 
+### Packaging
+
+- Update `requirements.txt` to Twisted >= 26.10 for security fixes, and drop the `zope.interface < 8` pin that blocked it.
+
 ### Core
 
 #### Added
