@@ -3,6 +3,7 @@ libtorrent
 twisted[tls]>=17.1
 rencode
 pyopenssl
+cryptography>=3.1
 pyxdg
 pillow
 mako
